@@ -16,7 +16,7 @@ stg_events as (
         CAST(FORMAT_DATE('%Y-%m-%d', PARSE_DATE('%Y%m%d', event_date)) AS DATE) as event_date,
         event_timestamp,
         event_previous_timestamp,
-        event_name AS event_name,
+        lower(event_name) AS event_name,
         user_first_touch_timestamp,
         case
             when lower(device.category) in ('desktop', 'mobile', 'tablet') then lower(device.category)
