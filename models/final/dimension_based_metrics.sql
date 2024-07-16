@@ -1,9 +1,7 @@
--- Define the model configuration
 {{ config(
     materialized='table'
 ) }}
 
--- Source data extraction
 WITH source_data AS (
     SELECT
         session_id,
@@ -26,7 +24,6 @@ WITH source_data AS (
     FROM {{ ref('stg_events') }}
 ),
 
--- Calculate session durations
 session_durations AS (
     SELECT
         event_date,
@@ -36,7 +33,6 @@ session_durations AS (
     GROUP BY event_date, user_pseudo_id
 ),
 
--- Aggregate metrics
 aggregated_metrics AS (
     SELECT
         sd.event_date,
@@ -61,7 +57,6 @@ aggregated_metrics AS (
     GROUP BY sd.year, sd.month, sd.day, sd.event_date, sd.device_category, sd.country, sd.region, sd.city, sd.traffic_medium, sd.traffic_source, sd.traffic_name
 )
 
--- Final data presentation with zero-coalesce on metrics
 SELECT
     year,
     month,

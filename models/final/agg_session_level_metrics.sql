@@ -13,7 +13,7 @@ with source_data as (
         user_pseudo_id,
         device_category,
         country,
-        name  
+        traffic_name  
     from {{ ref('stg_events') }}
 ),
 
