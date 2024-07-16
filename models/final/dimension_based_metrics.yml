@@ -19,6 +19,31 @@ models:
         tests:
           - not_null
 
+      - name: region
+        description: "Region from which the session originated"
+        tests:
+          - not_null
+
+      - name: city
+        description: "City from which the session originated"
+        tests:
+          - not_null
+
+      - name: traffic_medium
+        description: Medium of the traffic source
+        tests:
+          - not_null
+
+      - name: traffic_source
+        description: Source of the traffic
+        tests:
+          - not_null
+
+      - name: traffic_name
+        description: Name of the traffic source
+        tests:
+          - not_null
+
       - name: session_count
         description: "Total number of sessions"
         tests:
@@ -29,3 +54,22 @@ models:
         tests:
           - not_null
 
+      - name: new_user_count
+        description: Total number of new users
+        tests:
+          - not_null
+
+      - name: page_view_count
+        description: Total number of page views
+        tests:
+          - not_null
+
+      - name: search_session_count
+        description: Total number of sessions with search
+        tests:
+          - not_null
+
+      - name: average_session_duration
+        description: Average duration of the sessions
+        tests:
+          - not_null
