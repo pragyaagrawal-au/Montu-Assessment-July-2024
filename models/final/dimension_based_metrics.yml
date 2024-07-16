@@ -1,0 +1,42 @@
+version: 2
+
+models:
+  - name: dimension_based_metrics
+    description: "Metrics rolled up by all dimensions such as device category, location, and traffic source."
+    columns:
+      - name: date
+        description: "The date of the events"
+        tests:
+          - not_null
+          - unique
+
+      - name: device_category
+        description: "Category of the device used during the session"
+        tests:
+          - not_null
+
+      - name: country
+        description: "Country from which the session originated"
+        tests:
+          - not_null
+
+      - name: total_sessions
+        description: "Total number of sessions"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['>=0']
+
+      - name: total_users
+        description: "Total number of users"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['>=0']
+
+    tests:
+      - unique:
+          combination_of_columns:
+            - date
+            - device_category
+            - country
