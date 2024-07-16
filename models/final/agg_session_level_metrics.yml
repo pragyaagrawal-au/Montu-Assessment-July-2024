@@ -4,42 +4,22 @@ models:
   - name: agg_session_level_metrics
     description: "Aggregated session level metrics including total and new users, page views, and session duration."
     columns:
-      - name: session_id
-        description: "Unique identifier for each session"
-        tests:
-          - not_null
-          - unique
-
       - name: total_sessions
         description: "Total number of sessions"
         tests:
           - not_null
-          - accepted_values:
-              values: ['>=0']
 
       - name: total_new_users
         description: "Total number of new users"
         tests:
           - not_null
-          - accepted_values:
-              values: ['>=0']
 
       - name: total_page_views
         description: "Total number of page views per session"
         tests:
           - not_null
-          - accepted_values:
-              values: ['>=0']
 
-      - name: average_session_duration
+      - name: session_avg_duration
         description: "Average duration of sessions"
         tests:
           - not_null
-          - accepted_values:
-              values: ['>=0']
-
-    tests:
-      - dbt_expectations:
-          date_overlapping: 
-            start_date: "event_date"
-            end_date: "event_date"

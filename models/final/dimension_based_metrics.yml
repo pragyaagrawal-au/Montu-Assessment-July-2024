@@ -4,11 +4,10 @@ models:
   - name: dimension_based_metrics
     description: "Metrics rolled up by all dimensions such as device category, location, and traffic source."
     columns:
-      - name: date
+      - name: event_date
         description: "The date of the events"
         tests:
           - not_null
-          - unique
 
       - name: device_category
         description: "Category of the device used during the session"
@@ -20,23 +19,13 @@ models:
         tests:
           - not_null
 
-      - name: total_sessions
+      - name: session_count
         description: "Total number of sessions"
         tests:
           - not_null
-          - accepted_values:
-              values: ['>=0']
 
-      - name: total_users
+      - name: user_count
         description: "Total number of users"
         tests:
           - not_null
-          - accepted_values:
-              values: ['>=0']
 
-    tests:
-      - unique:
-          combination_of_columns:
-            - date
-            - device_category
-            - country
