@@ -21,12 +21,12 @@ stg_events as (
             when lower(device.category) in ('desktop', 'mobile', 'tablet') then lower(device.category)
             else 'unknown'
         end as device_category,
-        geo.country,
-        geo.region,
-        geo.city,
-        traffic_source.medium,
-        traffic_source.source,
-        traffic_source.name,
+        lower(geo.country) as country,
+        lower(geo.region) as region,
+        lower(geo.city) as city,
+        lower(traffic_source.medium) as traffic_medium,
+        lower(traffic_source.source) as traffic_source,
+        lower(traffic_source.name) as traffic_name,
         user_pseudo_id || '-' || event_timestamp as session_id 
     from stg_session_source
     where user_pseudo_id is not null  
