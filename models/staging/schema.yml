@@ -1,8 +1,8 @@
-version: 2
+# version: 2
 
-sources:
-  - name: ga4_obfuscated_sample_ecommerce
-    database: bigquery-public-data
-    schema: ga4_obfuscated_sample_ecommerce
-    tables:
-      - name: events_*
+# sources:
+#   - name: ga4_obfuscated_sample_ecommerce
+#     database: bigquery-public-data
+#     schema: ga4_obfuscated_sample_ecommerce
+#     tables:
+#       - name: events_*
