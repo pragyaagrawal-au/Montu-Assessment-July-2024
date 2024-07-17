@@ -1,0 +1,71 @@
+version: 2
+
+models:
+  - name: dimensional_aggregated_metrics
+    description: "Aggregates key metrics broken down by various dimensions such as device category, location, and traffic source, providing a detailed view of user engagement and behavior."
+    columns:
+      - name: event_date
+        description: "The date on which events occurred."
+        tests:
+          - not_null
+          - unique
+
+      - name: device_category
+        description: "The category of the device used during the session."
+        tests:
+          - not_null
+
+      - name: country
+        description: "The country from which the session originated."
+        tests:
+          - not_null
+
+      - name: region
+        description: "The region from which the session originated."
+        tests:
+          - not_null
+
+      - name: city
+        description: "The city from which the session originated."
+        tests:
+          - not_null
+
+      - name: traffic_medium
+        description: "The medium through which the user accessed the site."
+        tests:
+          - not_null
+
+      - name: traffic_source
+        description: "The source from which the user accessed the site."
+        tests:
+          - not_null
+
+      - name: traffic_name
+        description: "The campaign name associated with the session."
+        tests:
+          - not_null
+
+      - name: total_sessions
+        description: "Total number of sessions for each combination of dimensions."
+        tests:
+          - not_null
+
+      - name: total_users
+        description: "Total number of users for each combination of dimensions."
+        tests:
+          - not_null
+
+      - name: total_new_users
+        description: "Total number of new users for each combination of dimensions."
+        tests:
+          - not_null
+
+      - name: total_page_views
+        description: "Total number of page views for each combination of dimensions."
+        tests:
+          - not_null
+
+      - name: average_session_duration_seconds
+        description: "Average duration of sessions in seconds for each combination of dimensions."
+        tests:
+          - not_null

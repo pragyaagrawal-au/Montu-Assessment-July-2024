@@ -1,47 +1,47 @@
-version: 2
+# version: 2
 
-sources:
-  - name: ga4_obfuscated_sample_ecommerce
-    database: bigquery-public-data
-    schema: ga4_obfuscated_sample_ecommerce
-    tables:
-      - name: events_*
-        description: The table records the data for all days
-        columns:
-          - name: session_id
-            description: "Unique identifier for each session, concatenation of user_pseudo_id and event_timestamp."
-            tests:
-              - unique
-              - not_null
-          - name: event_date
-            description: "The date of the event"
-          - name: event_timestamp
-            description: "The timestamp of the event"
-            tests:
-              - not_null
-          - name: event_name
-            description: "The name of the event"
-            tests:
-              - not_null
-          - name: event_previous_timestamp
-            description: "The timestamp of the previous event"
-            tests:
-              - not_null
-          - name: user_pseudo_id
-            description: "The pseudonymous ID of the user"
-            tests:
-              - not_null
-          - name: user_first_touch_timestamp
-            description: "The timestamp of the user's first touch"
-          - name: geo
-            description: "Geographic information"
-            tests:
-              - not_null
-          - name: traffic_source
-            description: "Information about the traffic source"
-          - name: device_category
-            description: "Category of the device"
-            tests:
-              - not_null
-              - accepted_values:
-                  values: ['desktop', 'mobile', 'tablet', 'unknown']
+# sources:
+#   - name: ga4_obfuscated_sample_ecommerce
+#     database: bigquery-public-data
+#     schema: ga4_obfuscated_sample_ecommerce
+#     tables:
+#       - name: events_*
+#         description: The table records the data for all days
+#         columns:
+#           - name: session_id
+#             description: "Unique identifier for each session, concatenation of user_pseudo_id and event_timestamp."
+#             tests:
+#               - unique
+#               - not_null
+#           - name: event_date
+#             description: "The date of the event"
+#           - name: event_timestamp
+#             description: "The timestamp of the event"
+#             tests:
+#               - not_null
+#           - name: event_name
+#             description: "The name of the event"
+#             tests:
+#               - not_null
+#           - name: event_previous_timestamp
+#             description: "The timestamp of the previous event"
+#             tests:
+#               - not_null
+#           - name: user_pseudo_id
+#             description: "The pseudonymous ID of the user"
+#             tests:
+#               - not_null
+#           - name: user_first_touch_timestamp
+#             description: "The timestamp of the user's first touch"
+#           - name: geo
+#             description: "Geographic information"
+#             tests:
+#               - not_null
+#           - name: traffic_source
+#             description: "Information about the traffic source"
+#           - name: device_category
+#             description: "Category of the device"
+#             tests:
+#               - not_null
+#               - accepted_values:
+#                   values: ['desktop', 'mobile', 'tablet', 'unknown']

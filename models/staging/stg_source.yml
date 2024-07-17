@@ -1,0 +1,60 @@
+version: 2
+
+sources:
+  - name: ga4_obfuscated_sample_ecommerce
+    database: bigquery-public-data
+    schema: ga4_obfuscated_sample_ecommerce
+    tables:
+      - name: events_*
+        description: The table records the data for all days
+        columns:
+        - name: session_id
+          tests:
+          - not_null
+          - unique
+
+        - name: user_pseudo_id
+          tests:
+            - not_null
+
+        - name: event_timestamp
+          tests:
+            - not_null
+
+        - name: ga_session_number
+          tests:
+            - not_null
+
+        - name: event_date
+          tests:
+            - not_null
+            - date
+
+        - name: traffic_medium
+          tests:
+            - not_null
+
+        - name: traffic_source
+          tests:
+            - not_null
+
+        - name: traffic_name
+            - not_null
+
+        - name: device_category
+          tests:
+            - not_null
+            - accepted_values:
+                values: ['desktop', 'mobile', 'tablet', 'other'] 
+
+        - name: country
+          tests:
+            - not_null
+
+        - name: region
+          tests:
+            - not_null
+
+        - name: city
+          tests:
+            - not_null

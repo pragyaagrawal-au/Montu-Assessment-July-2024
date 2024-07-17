@@ -1,0 +1,36 @@
+version: 2
+
+models:
+  - name: aggregated_metrics
+    description: "Aggregates key performance indicators on a daily basis without segmenting by dimensions. Provides total sessions, total users, total new users, total page views, and average session duration."
+    columns:
+      - name: event_date
+        description: "The date on which the events were recorded, used to aggregate metrics daily."
+        tests:
+          - not_null
+          - unique
+
+      - name: total_sessions
+        description: "Total number of unique sessions recorded for each day."
+        tests:
+          - not_null
+
+      - name: total_users
+        description: "Total number of unique users who engaged with the platform on each day."
+        tests:
+          - not_null
+
+      - name: total_new_users
+        description: "Count of new users for each day, identified by their first visit."
+        tests:
+          - not_null
+
+      - name: total_page_views
+        description: "Total number of page views recorded across all sessions for each day."
+        tests:
+          - not_null
+
+      - name: average_session_duration_seconds
+        description: "The average duration of sessions in seconds for each day, calculated as the time difference between the first and last events of each session."
+        tests:
+          - not_null
