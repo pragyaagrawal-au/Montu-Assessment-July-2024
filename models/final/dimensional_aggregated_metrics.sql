@@ -1,5 +1,6 @@
 {{ config(
-  materialized='table'
+  materialized='table',
+  cluster_by=['event_date']
 ) }}
 
 WITH sessions AS (
