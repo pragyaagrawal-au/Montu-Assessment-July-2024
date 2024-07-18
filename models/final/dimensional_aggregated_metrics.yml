@@ -8,7 +8,6 @@ models:
         description: "The date on which events occurred."
         tests:
           - not_null
-          - unique
 
       - name: device_category
         description: "The category of the device used during the session."

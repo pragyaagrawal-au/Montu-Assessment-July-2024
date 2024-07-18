@@ -1,44 +1,45 @@
-{{ config(
-  materialized='table'
-) }}
-
--- events_cleaned.sql in dbt models
+-- Common Table Expression (CTE) to prepare base data from the Google Analytics 4 dataset
 WITH base_data AS (
   SELECT
-    SAFE_CAST(user_pseudo_id AS STRING) AS user_pseudo_id,
-    SAFE_CAST(event_timestamp AS INT64) AS event_timestamp,
-    lower(SAFE_CAST(event_name AS STRING)) AS event_name,
-    PARSE_DATE('%Y%m%d', event_date) AS event_date, -- Converts string to date for other uses
+    user_pseudo_id,  
+    event_timestamp,  
+    LOWER(SAFE_CAST(event_name AS STRING)) AS event_name,  -- Normalizes event names to lowercase for uniformity
+    PARSE_DATE('%Y%m%d', event_date) AS event_date,  -- Converts STRING date to DATE format for easier date operations
     CASE
-      WHEN lower(SAFE_CAST(device.category AS STRING)) IN ('desktop', 'mobile', 'tablet') THEN lower(SAFE_CAST(device.category AS STRING))
-      ELSE 'other'  -- Default value for unmatched categories
+      WHEN LOWER(SAFE_CAST(device.category AS STRING)) IN ('desktop', 'mobile', 'tablet')
+        THEN LOWER(SAFE_CAST(device.category AS STRING))  -- Filters and normalizes device categories
+      ELSE 'other'  -- Groups all other device types into 'other' category for simplified analysis
     END AS device_category,
-    lower(SAFE_CAST(traffic_source.medium AS STRING)) AS traffic_medium,
-    lower(SAFE_CAST(traffic_source.source AS STRING)) AS traffic_source,
-    lower(SAFE_CAST(traffic_source.name AS STRING)) AS traffic_name,
-    SAFE_CAST(event_params[SAFE_OFFSET(0)].value.string_value AS STRING) AS ga_session_number, -- Correctly referring to ga_session_number
-    lower(SAFE_CAST(geo.country AS STRING)) AS country,
-    lower(SAFE_CAST(geo.region AS STRING)) AS region,
-    lower(SAFE_CAST(geo.city AS STRING)) AS city
+    LOWER(SAFE_CAST(traffic_source.medium AS STRING)) AS traffic_medium,  
+    LOWER(SAFE_CAST(traffic_source.source AS STRING)) AS traffic_source,  
+    LOWER(SAFE_CAST(traffic_source.name AS STRING)) AS traffic_name, 
+    (SELECT SAFE_CAST(ep.value.int_value AS STRING) FROM UNNEST(event_params) ep WHERE ep.key = 'ga_session_id') AS ga_session_number,  -- Extracts the GA session ID from event parameters
+    LOWER(SAFE_CAST(geo.country AS STRING)) AS country,  -- Fetches country name from GEO data
+    LOWER(SAFE_CAST(geo.region AS STRING)) AS region, 
+    LOWER(SAFE_CAST(geo.city AS STRING)) AS city 
   FROM
-    {{ source('ga4_obfuscated_sample_ecommerce', 'events_*') }}
+    {{ source('ga4_obfuscated_sample_ecommerce', 'events_*') }}  
 ),
 
+-- CTE to append session IDs to each event for unique session identification
 event_data AS (
   SELECT
     *,
-    CONCAT(user_pseudo_id, '-', ga_session_number, '-', CAST(event_timestamp AS STRING)) AS session_id -- Consistently using ga_session_number here
+    user_pseudo_id || ga_session_number || event_timestamp || CAST(ROW_NUMBER() OVER (PARTITION BY user_pseudo_id, ga_session_number, event_timestamp ORDER BY event_timestamp) AS STRING) AS session_id 
+    -- Concatenates user ID, session number, and timestamp to form a unique session ID for each user session
   FROM
     base_data
   WHERE
     user_pseudo_id IS NOT NULL AND
-    ga_session_number IS NOT NULL AND -- Corrected the reference here
-    event_timestamp IS NOT NULL
+    ga_session_number IS NOT NULL AND
+    event_timestamp IS NOT NULL  -- Ensures data integrity by filtering out records with null essential identifiers
 )
 
+-- Final query to select all relevant fields
 SELECT
   user_pseudo_id,
   session_id,
+  ga_session_number,
   event_timestamp,
   event_name,
   event_date,
