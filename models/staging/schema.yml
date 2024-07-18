@@ -1,8 +1,13 @@
-# version: 2
+version: 2
 
-# sources:
-#   - name: ga4_obfuscated_sample_ecommerce
-#     database: bigquery-public-data
-#     schema: ga4_obfuscated_sample_ecommerce
-#     tables:
-#       - name: events_*
+sources:
+  - name: ga4_obfuscated_sample_ecommerce
+    database: bigquery-public-data
+    schema: ga4_obfuscated_sample_ecommerce
+    tables:
+      - name: events_*
+        freshness:
+          warn_after: {count: 23, period: hour}
+          error_after: {count: 24, period: hour}
+        loaded_at_field: _etl_loaded_at  # This is the timestamp column that indicates when the data was loaded
+            

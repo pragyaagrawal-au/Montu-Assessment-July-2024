@@ -1,13 +1,9 @@
 version: 2
 
-sources:
-  - name: ga4_obfuscated_sample_ecommerce
-    database: bigquery-public-data
-    schema: ga4_obfuscated_sample_ecommerce
-    tables:
-      - name: events_*
-        description: The table records the data for all days
-        columns:
+models:
+  - name: stg_source
+    description: "Aggregates key performance indicators on a daily basis without segmenting by dimensions. Provides total sessions, total users, total new users, total page views, and average session duration."
+    columns:
         - name: session_id
           tests:
           - not_null
@@ -28,7 +24,6 @@ sources:
         - name: event_date
           tests:
             - not_null
-            - date
 
         - name: traffic_medium
           tests:
