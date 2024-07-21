@@ -7,8 +7,8 @@
 -- Defined a CTE named 'sessions' that computes session-level metrics
 WITH sessions AS (
   SELECT
-    session_id, 
     user_pseudo_id,  
+    ga_session_number,
     event_date,  
     MIN(TIMESTAMP_MICROS(event_timestamp)) AS session_start,  -- Determines the start time of each session
     MAX(TIMESTAMP_MICROS(event_timestamp)) AS session_end,  -- Determines the end time of each session
@@ -18,16 +18,15 @@ WITH sessions AS (
   FROM
     {{ ref('stg_source') }} 
   GROUP BY
-    session_id,
     user_pseudo_id,
+    ga_session_number,
     event_date
 ),
 
 -- Define another CTE named 'aggregated_metrics' for daily aggregated metrics
 aggregated_metrics AS (
   SELECT
-    event_date,  
-    COUNT(DISTINCT session_id) AS total_sessions,  -- Counts the distinct number of sessions per day
+    event_date, 
     COUNT(DISTINCT user_pseudo_id) AS total_users,  -- Counts the distinct number of users per day
     SUM(is_new_user) AS total_new_users,  -- Sums the new user flags to get total new users per day
     SUM(page_views) AS total_page_views,  -- Sums all page views per day
@@ -36,15 +35,25 @@ aggregated_metrics AS (
     sessions
   GROUP BY
     event_date
+),
+
+total_events_metrics as (
+    select 
+    event_date,
+    COUNT(DISTINCT session_id) AS total_sessions,  -- Counts the distinct number of sessions per day)
+    from {{ ref('stg_source') }} 
+  GROUP BY
+    event_date
 )
 
 -- Final SELECT statement to retrieve daily metrics from the 'aggregated_metrics' CTE
 SELECT
-  event_date,  
-  total_sessions, 
+  am.event_date,  
+  total_sessions,
   total_users,  
   total_new_users, 
   total_page_views, 
   average_session_duration_seconds 
 FROM
-  aggregated_metrics
+  aggregated_metrics am join total_events_metrics tem on am.event_date = tem.event_date
+order by event_date
