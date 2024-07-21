@@ -20,7 +20,8 @@ WITH sessions AS (
     MAX(TIMESTAMP_MICROS(event_timestamp)) AS session_end,  -- End time of the session
     COUNT(*) AS total_events,  -- Total number of events during the session
     COUNT(DISTINCT CASE WHEN event_name = 'page_view' THEN event_timestamp END) AS page_views,  -- Counts unique page views during the session
-    MAX(CASE WHEN event_name = 'first_visit' THEN 1 ELSE 0 END) AS is_new_user  -- Indicates if the session was from a new user
+    MAX(CASE WHEN event_name = 'first_visit' THEN 1 ELSE 0 END) AS is_new_user,  -- Indicates if the session was from a new user
+    MAX(CASE WHEN LOWER(event_name) LIKE '%search%' THEN 1 ELSE 0 END) AS has_search_event  -- Identify search sessions
   FROM
     {{ ref('stg_source') }} 
   GROUP BY
@@ -49,7 +50,8 @@ dimensional_aggregated_metrics AS (
     COUNT(DISTINCT user_pseudo_id) AS total_users,  -- Total number of users per dimension
     SUM(is_new_user) AS total_new_users,  -- Total new users per dimension
     SUM(page_views) AS total_page_views,  -- Total page views per dimension
-    AVG(TIMESTAMP_DIFF(session_end, session_start, SECOND)) AS average_session_duration_seconds  -- Average duration of sessions in seconds per dimension
+    round(AVG(TIMESTAMP_DIFF(session_end, session_start, SECOND)),2) AS average_session_duration_seconds,  -- Average duration of sessions in seconds per dimension
+    SUM(has_search_event) AS total_sessions_with_search  -- Total sessions with a search event per dimension
   FROM
     sessions
   GROUP BY
@@ -99,6 +101,7 @@ SELECT
   dam.total_users,
   dam.total_new_users,
   dam.total_page_views,
+  total_sessions_with_search,
   dam.average_session_duration_seconds
 FROM
   dimensional_aggregated_metrics dam join dimensional_total_Sessions dts 
