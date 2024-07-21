@@ -1,13 +1,12 @@
 -- Configures the output of the SQL model to materialize as a table in the warehouse and to cluster data by the 'event_date' for optimized query performance.
 {{ config(
   materialized='table',
-  cluster_by=['event_date']
+  PARTITION_BY = ['event_date']
 ) }}
 
 -- Defined a CTE named 'sessions' that computes detailed session-level metrics including device and geographic dimensions.
 WITH sessions AS (
   SELECT
-    session_id,  
     user_pseudo_id, 
     event_date, 
     device_category,  
@@ -25,9 +24,8 @@ WITH sessions AS (
   FROM
     {{ ref('stg_source') }} 
   GROUP BY
-    session_id,
-    user_pseudo_id,
     event_date,
+    user_pseudo_id,
     device_category,
     country,
     region,
@@ -48,7 +46,6 @@ dimensional_aggregated_metrics AS (
     traffic_medium,
     traffic_source,
     traffic_name,
-    COUNT(DISTINCT session_id) AS total_sessions,  -- Total number of sessions per dimension
     COUNT(DISTINCT user_pseudo_id) AS total_users,  -- Total number of users per dimension
     SUM(is_new_user) AS total_new_users,  -- Total new users per dimension
     SUM(page_views) AS total_page_views,  -- Total page views per dimension
@@ -64,22 +61,46 @@ dimensional_aggregated_metrics AS (
     traffic_medium,
     traffic_source,
     traffic_name
-)
+),
 
+dimensional_total_Sessions AS (
+SELECT
+    event_date,
+    device_category,
+    country,
+    region,
+    city,
+    traffic_medium,
+    traffic_source,
+    traffic_name,
+    COUNT(DISTINCT session_id) AS total_sessions,  -- Total number of sessions per dimension
+FROM {{ ref('stg_source') }} 
+GROUP BY
+    event_date,
+    device_category,
+    country,
+    region,
+    city,
+    traffic_medium,
+    traffic_source,
+    traffic_name
+)
 -- Select and display the aggregated dimensional metrics from the 'dimensional_aggregated_metrics' CTE.
 SELECT
-  event_date,
-  device_category,
-  country,
-  region,
-  city,
-  traffic_medium,
-  traffic_source,
-  traffic_name,
+  dam.event_date,
+  dam.device_category,
+  dam.country,
+  dam.region,
+  dam.city,
+  dam.traffic_medium,
+  dam.traffic_source,
+  dam.traffic_name,
   total_sessions,
-  total_users,
-  total_new_users,
-  total_page_views,
-  average_session_duration_seconds
+  dam.total_users,
+  dam.total_new_users,
+  dam.total_page_views,
+  dam.average_session_duration_seconds
 FROM
-  dimensional_aggregated_metrics
+  dimensional_aggregated_metrics dam join dimensional_total_Sessions dts 
+  on dam.event_date = dts.event_date and dam.device_category = dts.device_category
+  and dam.country = dts.country

@@ -28,13 +28,20 @@ models:
         - name: traffic_medium
           tests:
             - not_null
+            - accepted_values:
+                values: ['cpc', 'organic', 'referral', 'other', 'unknown', 'deleted', 'direct']
 
         - name: traffic_source
           tests:
             - not_null
+            - accepted_values:
+                values: ['google', 'shop.googlemerchandisestore.com','other', 'unknown', 'deleted','direct']
 
         - name: traffic_name
+          tests:
             - not_null
+            - accepted_values:
+                values: ['organic', 'other', 'unknown', 'deleted', 'direct']
 
         - name: device_category
           tests:

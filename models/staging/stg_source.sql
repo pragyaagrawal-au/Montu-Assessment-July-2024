@@ -5,14 +5,37 @@ WITH base_data AS (
     event_timestamp,  
     LOWER(SAFE_CAST(event_name AS STRING)) AS event_name,  -- Normalizes event names to lowercase for uniformity
     PARSE_DATE('%Y%m%d', event_date) AS event_date,  -- Converts STRING date to DATE format for easier date operations
-    CASE
+
+    (CASE
       WHEN LOWER(SAFE_CAST(device.category AS STRING)) IN ('desktop', 'mobile', 'tablet')
         THEN LOWER(SAFE_CAST(device.category AS STRING))  -- Filters and normalizes device categories
       ELSE 'other'  -- Groups all other device types into 'other' category for simplified analysis
-    END AS device_category,
-    LOWER(SAFE_CAST(traffic_source.medium AS STRING)) AS traffic_medium,  
-    LOWER(SAFE_CAST(traffic_source.source AS STRING)) AS traffic_source,  
-    LOWER(SAFE_CAST(traffic_source.name AS STRING)) AS traffic_name, 
+    END) AS device_category,
+
+    (CASE
+    WHEN LOWER(SAFE_CAST(traffic_source.medium AS STRING)) IN ('cpc', 'organic', 'referral') THEN LOWER(SAFE_CAST(traffic_source.medium AS STRING))
+    WHEN LOWER(SAFE_CAST(traffic_source.medium AS STRING)) IN ('<Other>') THEN 'other'
+    WHEN LOWER(SAFE_CAST(traffic_source.medium AS STRING)) = '(data deleted)' THEN 'deleted'
+    WHEN LOWER(SAFE_CAST(traffic_source.medium AS STRING)) = '(direct)' THEN 'direct'
+    ELSE 'unknown' 
+    END) AS traffic_medium,  
+
+    (CASE
+    WHEN LOWER(SAFE_CAST(traffic_source.source AS STRING)) IN ('google', 'shop.googlemerchandisestore.com') THEN LOWER(SAFE_CAST(traffic_source.source AS STRING))
+    WHEN LOWER(SAFE_CAST(traffic_source.source AS STRING)) = '(direct)' THEN 'direct'
+    WHEN LOWER(SAFE_CAST(traffic_source.source AS STRING)) = '(data deleted)' THEN 'deleted'
+    WHEN LOWER(SAFE_CAST(traffic_source.source AS STRING)) = '<Other>' THEN 'other'
+    ELSE 'unknown' 
+    END) AS traffic_source,  
+
+    (CASE
+    WHEN LOWER(SAFE_CAST(traffic_source.name AS STRING)) IN ('organic') THEN LOWER(SAFE_CAST(traffic_source.name AS STRING))
+    WHEN LOWER(SAFE_CAST(traffic_source.name AS STRING)) IN ('<Other>') THEN 'other'
+    WHEN LOWER(SAFE_CAST(traffic_source.name AS STRING)) = '(data deleted)' THEN 'deleted'
+    WHEN LOWER(SAFE_CAST(traffic_source.name AS STRING)) = '(direct)' THEN 'direct'
+    ELSE 'unknown' 
+    END) AS traffic_name,
+
     (SELECT SAFE_CAST(ep.value.int_value AS STRING) FROM UNNEST(event_params) ep WHERE ep.key = 'ga_session_id') AS ga_session_number,  -- Extracts the GA session ID from event parameters
     LOWER(SAFE_CAST(geo.country AS STRING)) AS country,  -- Fetches country name from GEO data
     LOWER(SAFE_CAST(geo.region AS STRING)) AS region, 

@@ -1,7 +1,7 @@
 -- Configures the output of the SQL model to materialize as a table in the warehouse and to cluster data by the event_date for optimized query performance
 {{ config(
   materialized='table',
-  cluster_by=['event_date']
+  PARTITION_BY = ['event_date']
 ) }}
 
 -- Defined a CTE named 'sessions' that computes session-level metrics
